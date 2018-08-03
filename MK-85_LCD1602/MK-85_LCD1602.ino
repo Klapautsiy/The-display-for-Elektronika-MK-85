@@ -128,6 +128,7 @@ byte invertBits(byte a) {return (((a&1)<<4)|((a&2)<<2)|(a&4)|((a&8)>>2)|((a&16)>
 
 void print_MK85() {
 
+
 byte cursor0[8] = {
 0b00000,
 0b00000,
@@ -351,77 +352,42 @@ if (                n_Cursor <  4) mode_screen = 0;
 if (n_Cursor > 7 && n_Cursor < 12) mode_screen = 1;
 
 
+byte offset_screen = 0;
+
 if (mode_screen == 0) {
-
-lcd.createChar( 0, LCD1602[ 0]);
-lcd.createChar( 1, LCD1602[ 1]);
-lcd.createChar( 2, LCD1602[ 2]);
-lcd.createChar( 3, LCD1602[ 3]);
-
-lcd.createChar( 4, LCD1602[ 4]);
-lcd.createChar( 5, LCD1602[ 5]);
-lcd.createChar( 6, LCD1602[ 6]);
-lcd.createChar( 7, LCD1602[ 7]);
-
-lcd.setCursor(0, 1);
-
-lcd.print((char) 0);
-lcd.print((char) 1);
-lcd.print((char) 2);
-lcd.print((char) 3);
-
-lcd.print((char) 4);
-lcd.print((char) 5);
-lcd.print((char) 6);
-lcd.print((char) 7);
-
-lcd.print("    ");
-
+offset_screen = 0;
+lcd.setCursor(8, 1);
 } else {
-
-lcd.createChar( 4, LCD1602[ 4]);
-lcd.createChar( 5, LCD1602[ 5]);
-lcd.createChar( 6, LCD1602[ 6]);
-lcd.createChar( 7, LCD1602[ 7]);
-
-lcd.createChar( 8, LCD1602[ 8]);
-lcd.createChar( 9, LCD1602[ 9]);
-lcd.createChar(10, LCD1602[10]);
-lcd.createChar(11, LCD1602[11]);
-
+offset_screen = 4;
 lcd.setCursor(0, 1);
+}
 
 lcd.print("    ");
 
-lcd.print((char) 4);
-lcd.print((char) 5);
-lcd.print((char) 6);
-lcd.print((char) 7);
-
-lcd.print((char) 8);
-lcd.print((char) 9);
-lcd.print((char)10);
-lcd.print((char)11);
-
+for (byte i = offset_screen; i < 8 + offset_screen; i++) {
+lcd.createChar(i, LCD1602[i]);
+lcd.setCursor(i, 1);
+lcd.print((char) i);
 }
 
 }
 
-//~~~ курсор ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//~~~ курсор ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (n_Cursor < 12) {
 
-if (state_mode             == 0) {/*курсор*/
+if (state_mode             == 0) {/*напечатать курсор*/
 
-if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(n_Cursor, cursor0);}
-else                                        {lcd.createChar(n_Cursor, cursor1);}
-
-}
+if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(n_Cursor, cursor0); /*курсор "нижняя черта"*/        }
+else                                        {lcd.createChar(n_Cursor, cursor1); /*курсор "чёрный прямоугольник"*/}
 
 lcd.setCursor(n_Cursor, 1);
 lcd.print((char)n_Cursor);
 
 }
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 }
 
