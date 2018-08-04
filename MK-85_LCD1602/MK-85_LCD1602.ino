@@ -12,14 +12,16 @@ volatile byte data    = 0;
 
 volatile byte LCD_MK85[105];
 
-volatile boolean print = 0;
+volatile boolean print_screen = 0;
+volatile boolean print_cursor = 0;
 
-         byte n_Cursor = 0;
+         byte n_cursor = 0;
 
-         boolean  state_mode = 0;
-         boolean nstate_mode = 0;
+         boolean  mode_screen = 0;
+         boolean nmode_screen = 0;
 
-         boolean mode_screen = 0;
+         boolean  mode_cursor = 0;
+         boolean nmode_cursor = 0;
 
 
 ISR(INT1_vect) {
@@ -29,7 +31,7 @@ ISR(INT1_vect) {
 if (bitRead(PIND, 3) == 1) {address = PINC - 0x80;}
 else                       {data    = PINA;
 
-if (address <= 0xE8 - 0x80) {LCD_MK85[address] = data; print = 1;}
+if (address <= 0xE8 - 0x80) {LCD_MK85[address] = data; print_screen = 1;}
 
 }
 
@@ -85,7 +87,6 @@ lcd.clear();
 */
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-print = 1;
 
 }
 
@@ -99,7 +100,7 @@ if (mask & myByte) lcd.print ('1'); else lcd.print ('0');
 
 void print_LCD_debug() {
 
-if (print == 1) {print = 0;
+if (print_screen == 1) {print_screen = 0;
 
 lcd.clear();
 
@@ -129,7 +130,7 @@ byte invertBits(byte a) {return (((a&1)<<4)|((a&2)<<2)|(a&4)|((a&8)>>2)|((a&16)>
 void print_MK85() {
 
 
-byte cursor0[8] = {
+byte cursor_0[8] = {
 0b00000,
 0b00000,
 0b00000,
@@ -140,7 +141,7 @@ byte cursor0[8] = {
 0b00000
 };
 
-byte cursor1[8] = {
+byte cursor_1[8] = {
 0b11111,
 0b11111,
 0b11111,
@@ -151,6 +152,10 @@ byte cursor1[8] = {
 0b00000
 };
 
+/*
+pixel assignments to the display RAM locations
+http://www.pisi.com.pl/piotr433/mk85scr.png
+*/
 
 byte LCD1602[12][8] = {
 
@@ -289,25 +294,33 @@ invertBits(LCD_MK85[0x5F]),
 };
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-nstate_mode = (millis()>>9) & 1;
-if (state_mode != nstate_mode) {
-	state_mode  = nstate_mode;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+nmode_screen = (millis()>>9) & 1;
+nmode_cursor = (millis()>>8) & 1;
 
-mode_screen = !mode_screen;
+n_cursor = LCD_MK85[0xE0 - 0x80]; bitClear(n_cursor, 4);
 
-print = 1;
+if (                n_cursor <  4) nmode_screen = 0;
+if (n_cursor > 7 && n_cursor < 12) nmode_screen = 1;
+
+if (mode_screen != nmode_screen) {
+    mode_screen  = nmode_screen;
+
+print_screen = 1;
 
 }
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if (mode_cursor != nmode_cursor) {
+    mode_cursor  = nmode_cursor;
+
+print_screen = 1;
+
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-if (print == 1) {print = 0;
-
-/*
-pixel assignments to the display RAM locations
-http://www.pisi.com.pl/piotr433/mk85scr.png
-*/
+//~~ экран ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if (print_screen == 1) {print_screen = 0;
 
 // EXT
 if (bitRead(LCD_MK85[0x0 ], 0) /*S*/ == 0) {lcd.setCursor(0, 0); lcd.print("   ");}
@@ -345,49 +358,24 @@ if (bitRead(LCD_MK85[0x58], 3) /*STOP*/ == 0) {lcd.setCursor(12, 1); lcd.print("
 else                                          {lcd.setCursor(12, 1); lcd.print("STOP");}
 
 
-n_Cursor = LCD_MK85[0xE0 - 0x80]; bitClear(n_Cursor, 4);
-
-
-if (                n_Cursor <  4) mode_screen = 0;
-if (n_Cursor > 7 && n_Cursor < 12) mode_screen = 1;
-
-
-byte offset_screen = 0;
-
-if (mode_screen == 0) {
-offset_screen = 0;
-lcd.setCursor(8, 1);
-} else {
-offset_screen = 4;
-lcd.setCursor(0, 1);
-}
-
+lcd.setCursor((!mode_screen) * 8, 1);
 lcd.print("    ");
 
-for (byte i = offset_screen; i < 8 + offset_screen; i++) {
-lcd.createChar(i, LCD1602[i]);
-lcd.setCursor(i, 1);
-lcd.print((char) i);
+for (byte i = 4 * mode_screen; i < 8 + (4 * mode_screen); i++) {
+
+if (mode_cursor == 0 && n_cursor < 12 && i == n_cursor) { /*напечатать курсор*/
+
+if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(i, cursor_0);} /*курсор "нижняя черта"*/
+else                                        {lcd.createChar(i, cursor_1);} /*курсор "чёрный прямоугольник"*/
 }
+else                                        {lcd.createChar(i, LCD1602[i]);}
 
-}
-
-
-//~~~ курсор ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if (n_Cursor < 12) {
-
-if (state_mode             == 0) {/*напечатать курсор*/
-
-if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(n_Cursor, cursor0); /*курсор "нижняя черта"*/        }
-else                                        {lcd.createChar(n_Cursor, cursor1); /*курсор "чёрный прямоугольник"*/}
-
-lcd.setCursor(n_Cursor, 1);
-lcd.print((char)n_Cursor);
+                                             lcd.setCursor(i, 1);
+                                             lcd.print((char) i);
 
 }
 
 }
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 }
 
