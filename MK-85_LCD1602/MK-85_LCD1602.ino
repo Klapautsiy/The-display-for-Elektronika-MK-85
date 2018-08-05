@@ -13,7 +13,7 @@ volatile byte data    = 0;
 volatile byte LCD_MK85[105];
 
 volatile boolean print_screen = 0;
-volatile boolean print_cursor = 0;
+// volatile boolean print_cursor = 0;
 
          byte n_cursor = 0;
 
@@ -294,7 +294,7 @@ invertBits(LCD_MK85[0x5F]),
 };
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 nmode_screen = (millis()>>9) & 1;
 nmode_cursor = (millis()>>8) & 1;
 
@@ -316,7 +316,7 @@ if (mode_cursor != nmode_cursor) {
 print_screen = 1;
 
 }
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 //~~ экран ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -357,13 +357,13 @@ else                                        {lcd.setCursor(14, 0); lcd.print("TR
 if (bitRead(LCD_MK85[0x58], 3) /*STOP*/ == 0) {lcd.setCursor(12, 1); lcd.print("    ");}
 else                                          {lcd.setCursor(12, 1); lcd.print("STOP");}
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 lcd.setCursor((!mode_screen) * 8, 1);
 lcd.print("    ");
 
 for (byte i = 4 * mode_screen; i < 8 + (4 * mode_screen); i++) {
 
-if (mode_cursor == 0 && n_cursor < 12 && i == n_cursor) { /*напечатать курсор*/
+if (n_cursor < 12 && mode_cursor == 0 && i == n_cursor) { /*напечатать курсор*/
 
 if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(i, cursor_0);} /*курсор "нижняя черта"*/
 else                                        {lcd.createChar(i, cursor_1);} /*курсор "чёрный прямоугольник"*/
@@ -374,6 +374,7 @@ else                                        {lcd.createChar(i, LCD1602[i]);}
                                              lcd.print((char) i);
 
 }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 }
 
