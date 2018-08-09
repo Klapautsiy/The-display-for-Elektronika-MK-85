@@ -13,7 +13,6 @@ volatile byte data    = 0;
 volatile byte LCD_MK85[105];
 
 volatile boolean print_screen = 0;
-// volatile boolean print_cursor = 0;
 
          byte n_cursor = 0;
 
@@ -28,12 +27,10 @@ ISR(INT1_vect) {
 
 /* http://www.pisi.com.pl/piotr433/mk85dbus.png */
 
-if (bitRead(PIND, 3) == 1) {address = PINC - 0x80;}
-else                       {data    = PINA;
+address = ~PINC - 0x80;
+data    = ~PINA;
 
 if (address <= 0xE8 - 0x80) {LCD_MK85[address] = data; print_screen = 1;}
-
-}
 
 }
 
@@ -62,9 +59,9 @@ FALLING прерывание вызывается при смене значен
 // MCUCR |= (1<<ISC00);            /*INT0 CHANGE*/
 // GICR  |= (1<<INT0);             /*INT0 enabled*/
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// MCUCR |= (1<<ISC10)|(1<<ISC11); /*INT1 RISING*/
+MCUCR |= (1<<ISC10)|(1<<ISC11); /*INT1 RISING*/
 // MCUCR |= (1<<ISC11);            /*INT1 FALLING*/
-MCUCR |= (1<<ISC10);            /*INT1 CHANGE*/
+// MCUCR |= (1<<ISC10);            /*INT1 CHANGE*/
 GICR  |= (1<<INT1);             /*INT1 enabled*/
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // sei(); // разрешение прерываний глобально
