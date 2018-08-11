@@ -1,7 +1,5 @@
 
-/*
-information from http://www.pisi.com.pl/piotr433/mk85hwe.htm
-*/
+/* information from http://www.pisi.com.pl/piotr433/mk85hwe.htm */
 
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(8, 9, 10, 11, 12, 13, 14);
@@ -39,6 +37,11 @@ void setup() {
 
 lcd.begin(16, 2);
 
+pinMode( 4, OUTPUT);
+pinMode( 5, OUTPUT);
+digitalWrite( 4, 1);
+digitalWrite( 5, 1);
+
 for(byte i = 0; i < 105; i++) LCD_MK85[i] = 0;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,6 +75,7 @@ GICR  |= (1<<INT1);             /*INT1 enabled*/
 заставка дисплея.
 стирается после перехода МК-85 из состояния "выключено" в состояние "включено".
 */
+
 /*
 LCD_MK85[0xE0 - 0x80] = 1;
 
@@ -292,8 +296,8 @@ invertBits(LCD_MK85[0x5F]),
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-nmode_screen = (millis()>>9) & 1;
-nmode_cursor = (millis()>>8) & 1;
+nmode_screen = (millis()>>10) & 1;
+nmode_cursor = (millis()>> 9) & 1;
 
 n_cursor = LCD_MK85[0xE0 - 0x80]; bitClear(n_cursor, 4);
 
@@ -360,10 +364,10 @@ lcd.print("    ");
 
 for (byte i = 4 * mode_screen; i < 8 + (4 * mode_screen); i++) {
 
-if (n_cursor < 12 && mode_cursor == 0 && i == n_cursor) { /*напечатать курсор*/
+if (n_cursor < 12 && mode_cursor == 0 && i == n_cursor) { /* напечатать курсор */
 
-if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(i, cursor_0);} /*курсор "нижняя черта"*/
-else                                        {lcd.createChar(i, cursor_1);} /*курсор "чёрный прямоугольник"*/
+if (bitRead(LCD_MK85[0xE0 - 0x80], 4) == 1) {lcd.createChar(i, cursor_0);} /* курсор "нижняя черта" */
+else                                        {lcd.createChar(i, cursor_1);} /* курсор "чёрный прямоугольник" */
 }
 else                                        {lcd.createChar(i, LCD1602[i]);}
 
@@ -382,6 +386,7 @@ void loop() {while(1) {
 
 // print_LCD_debug();
 // или
+digitalWrite( 5, print_screen);
 print_MK85();
 
 }
