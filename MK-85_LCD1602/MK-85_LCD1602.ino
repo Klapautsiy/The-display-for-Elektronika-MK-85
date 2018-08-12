@@ -62,8 +62,8 @@ FALLING прерывание вызывается при смене значен
 // MCUCR |= (1<<ISC00);            /*INT0 CHANGE*/
 // GICR  |= (1<<INT0);             /*INT0 enabled*/
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-MCUCR |= (1<<ISC10)|(1<<ISC11); /*INT1 RISING*/
-// MCUCR |= (1<<ISC11);            /*INT1 FALLING*/
+// MCUCR |= (1<<ISC10)|(1<<ISC11); /*INT1 RISING*/
+MCUCR |= (1<<ISC11);            /*INT1 FALLING*/
 // MCUCR |= (1<<ISC10);            /*INT1 CHANGE*/
 GICR  |= (1<<INT1);             /*INT1 enabled*/
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -296,8 +296,8 @@ invertBits(LCD_MK85[0x5F]),
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-nmode_screen = (millis()>>10) & 1;
-nmode_cursor = (millis()>> 9) & 1;
+nmode_screen = (millis()>> 9) & 1;
+nmode_cursor = (millis()>> 8) & 1;
 
 n_cursor = LCD_MK85[0xE0 - 0x80]; bitClear(n_cursor, 4);
 
