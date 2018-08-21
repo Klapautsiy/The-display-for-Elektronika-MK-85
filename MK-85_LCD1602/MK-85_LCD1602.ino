@@ -35,12 +35,12 @@ if (address <= 0xE8 - 0x80) {LCD_MK85[address] = data; print_screen = 1;}
 
 void setup() {
 
-lcd.begin(16, 2);
-
 pinMode( 4, OUTPUT);
 pinMode( 5, OUTPUT);
 digitalWrite( 4, 1);
 digitalWrite( 5, 1);
+
+lcd.begin(16, 2);
 
 for(byte i = 0; i < 105; i++) LCD_MK85[i] = 0;
 
@@ -88,7 +88,6 @@ lcd.clear();
 */
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 }
 
 
@@ -105,15 +104,11 @@ if (print_screen == 1) {print_screen = 0;
 
 lcd.clear();
 
-lcd.setCursor(2, 0);
-lcd.print(byte(address - 0x80), HEX);
-
-
 lcd.setCursor(5, 0);
-lcd.print(byte(address       ), HEX);
+lcd.print(byte(address), HEX);
 
 lcd.setCursor(5, 1);
-lcd.print(byte(data          ), HEX);
+lcd.print(byte(data   ), HEX);
 
 lcd.setCursor(8, 0);
 printBits(address);
@@ -128,8 +123,8 @@ printBits(data);
 
 byte invertBits(byte a) {return (((a&1)<<4)|((a&2)<<2)|(a&4)|((a&8)>>2)|((a&16)>>4));}
 
-void print_MK85() {
 
+void print_MK85() {
 
 byte cursor_0[8] = {
 0b00000,
@@ -296,8 +291,8 @@ invertBits(LCD_MK85[0x5F]),
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-nmode_screen = (millis()>> 9) & 1;
-nmode_cursor = (millis()>> 8) & 1;
+nmode_screen = (millis() >> 9) & 1;
+nmode_cursor = (millis() >> 8) & 1;
 
 n_cursor = LCD_MK85[0xE0 - 0x80]; bitClear(n_cursor, 4);
 
@@ -391,7 +386,6 @@ print_MK85();
 
 }
 
+
 }
-
-
 
