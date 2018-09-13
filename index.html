@@ -47,10 +47,11 @@
 Дисплей.
 ------------------------------------------------------
 
-электрическая схема:
-
 <img src="pictures/MK-85_scheme_CD4094BE_ATmega16_LCD1602.png" width="800">
 
+или
+
+<img src="pictures/MK-85_scheme_SPI_atmega16_LCD1602.png" width="800">
 
 подключение к плате МК-85:
 
@@ -87,8 +88,13 @@ M16_16.build.variant = pins_atmega16
 #######################################
 
 <body link="#44CC00" alink="#44CC00" vlink="#44CC00"><a href="https://github.com/Klapautsiy/The-display-for-Elektronika-MK-85">взять отсюда папки</a></body>
-в папку *\variants\ скопировать папку *\pins_atmega16\.
-в папку со скетчами скопировать папку *\MK-85_CD4094BE_ATmega16_LCD1602\.
+
+в папку *\variants\ скопировать папку:
+*\pins_atmega16\.
+
+в папку со скетчами скопировать папки:
+*\MK-85_CD4094BE_ATmega16_LCD1602\
+*\MK-85_SPI_ATmega16_LCD1602\
 
 перезагрузить Arduino IDE, выбрать плату "Atmega16 - 16MHz", выбрать программатор,
 открыть скетч, загрузить с помощью программатора.
