@@ -1,9 +1,23 @@
 
 /* information from http://www.pisi.com.pl/piotr433/mk85hwe.htm */
 
+#include <avr/power.h>
+
+/*
+для включения базового функционала уводящего ATmega8 и OLED-дисплей в сон кнопками ON, OFF
+раскомментировть код с комментарием "// sleep".
+!примечание: способы программного уменьшения тока потребления OLED-дисплея менее 5мА автору
+не известны.
+*/
+
+/*
+// sleep
+#include <avr/sleep.h>
+*/
+
 #include <LiquidCrystal.h>
 // LiquidCrystal oled(RS,  E, D4, D5, D6, D7)
-   LiquidCrystal oled( 5,  6,  0,  1,  3,  4);
+   LiquidCrystal oled( 4,  5,  0,  1,  6,  7);
 
 
 volatile byte address = 0;
@@ -35,8 +49,24 @@ print_screen = 1;
 
 //=================================================
 
+/*
+// sleep
+ISR(INT1_vect) {
+
+GICR  &= ~(1<<INT1); // INT1 disabled
+
+oled.command(0x08|0x04); // включить экран
+
+}
+*/
 
 void setup() {
+
+/*
+// sleep
+pinMode( 3, INPUT_PULLUP); // button ON to GND
+pinMode(19, INPUT_PULLUP); // button SLEEP to GND
+*/
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // графический режим:
@@ -46,14 +76,30 @@ oled.command(0x01); // очистить ОЗУ
 oled.command(0x08|0x04); // включить экран
 
 oled.begin(16, 2);
+
+/*
+// test OLED
+setGraphicCursor(0, 0);
+for(byte i = 0; i < 80; i++) oled.write(0b11111111);
+setGraphicCursor(0, 1);
+for(byte i = 0; i < 80; i++) oled.write(0b11111111);
+*/
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //===================================================
-TIMSK  = 0; // disable all timers overflow interrupt
-TCCR0  = 0; // stop timer0
-TCCR2  = 0; // stop timer2
-TCCR1A = 0; // disable timer1
-TCCR1B = 0; // stop    timer1
+
+ADCSRA = 0; // disable ADC
+power_all_disable(); // turn off various modules
+
+//===================================================
+
+/*
+// sleep
+set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+sleep_enable();
+*/
+
 //===================================================
 
 /*
@@ -68,7 +114,13 @@ FALLING при смене значения на порту с HIGH на LOW
 MCUCR |= (1<<ISC01);            /*INT0 FALLING*/
 // MCUCR |= (1<<ISC00);            /*INT0 CHANGE*/
 GICR  |= (1<<INT0);             /*INT0 enabled*/
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// MCUCR |= (1<<ISC10)|(1<<ISC11); /*INT1 RISING*/
+// MCUCR |= (1<<ISC11);            /*INT1 FALLING*/
+// MCUCR |= (1<<ISC10);            /*INT1 CHANGE*/
+// GICR  |=  (1<<INT1);            /*INT1 enabled*/
+// GICR  &= ~(1<<INT1);            /*INT1 disabled*/
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 for(byte i = 0; i < 105; i++) LCD_MK85[i] = 0;
 
@@ -370,8 +422,30 @@ result();
 
 }
 
+/*
+// sleep
+void sleep_screen() {
+
+if (digitalRead(19) == 0) {
+
+oled.command(0x08); // выключить экран
+
+GIFR   =  (1<<INTF1);
+GICR  |=  (1<<INT1); // INT1 enabled
+
+sleep_cpu(); // сон
+
+}
+
+}
+*/
 
 void loop() {while(1) {
+
+/*
+// sleep
+sleep_screen();
+*/
 
 print_MK85();
 
