@@ -2,17 +2,11 @@
 /* information from http://www.pisi.com.pl/piotr433/mk85hwe.htm */
 
 #include <avr/power.h>
-
-/*
-для включения базового функционала уводящего ATmega8 и OLED-дисплей в сон кнопками ON, OFF
-раскомментировть код с комментарием "// sleep".
-!примечание: способы программного уменьшения тока потребления OLED-дисплея менее 5мА автору
-не известны.
-*/
-
-/*
-// sleep
 #include <avr/sleep.h>
+
+/*
+!sleep: автору не известны программные методы уменьшения тока потребления OLED-дисплея
+менее 5мА.
 */
 
 #include <LiquidCrystal.h>
@@ -49,7 +43,7 @@ print_screen = 1;
 
 //=================================================
 
-/*
+
 // sleep
 ISR(INT1_vect) {
 
@@ -58,15 +52,13 @@ GICR  &= ~(1<<INT1); // INT1 disabled
 oled.command(0x08|0x04); // включить экран
 
 }
-*/
+
 
 void setup() {
 
-/*
 // sleep
 pinMode( 3, INPUT_PULLUP); // button ON to GND
-pinMode(19, INPUT_PULLUP); // button SLEEP to GND
-*/
+pinMode(19, INPUT_PULLUP); // button OFF to GND
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // графический режим:
@@ -94,11 +86,9 @@ power_all_disable(); // turn off various modules
 
 //===================================================
 
-/*
 // sleep
 set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 sleep_enable();
-*/
 
 //===================================================
 
@@ -422,7 +412,7 @@ result();
 
 }
 
-/*
+
 // sleep
 void sleep_screen() {
 
@@ -438,14 +428,12 @@ sleep_cpu(); // сон
 }
 
 }
-*/
+
 
 void loop() {while(1) {
 
-/*
 // sleep
 sleep_screen();
-*/
 
 print_MK85();
 
