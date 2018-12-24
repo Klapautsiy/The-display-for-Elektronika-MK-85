@@ -2,13 +2,6 @@
 /* information from http://www.pisi.com.pl/piotr433/mk85hwe.htm */
 
 #include <avr/power.h>
-#include <avr/sleep.h>
-
-/*
-!sleep: автору не известны программные методы уменьшения тока потребления OLED-дисплея
-менее 5мА.
-*/
-
 #include <LiquidCrystal.h>
 // LiquidCrystal oled(RS,  E, D4, D5, D6, D7)
    LiquidCrystal oled( 4,  5,  0,  1,  6,  7);
@@ -24,19 +17,31 @@ volatile boolean print_screen = 0;
 volatile unsigned long n_time = 0;
          boolean  show_cursor = 0;
 
-//=================================================
 
-/* http://www.pisi.com.pl/piotr433/mk85dbus.png */
+//=================================================
 
 ISR(INT0_vect) {
 
 address = (~PINB) - 0x80;
 data    = (~PINC) & 0x1F;
 
-if (address <= 0x68 /*0xE8 - 0x80*/ && LCD_MK85[address] != data) {
-LCD_MK85[address] = data;
-n_time  = 0;
-print_screen = 1;
+if (address <= 0x68 /*0xE8 - 0x80*/) {
+
+if (LCD_MK85[address] != data) {LCD_MK85[address] = data; print_screen = 1; n_time  = 0;}
+
+if (address == 0x5F) {
+
+// BELL - LETC "4DSTSD4"
+if (LCD_MK85[0x59] == 0b00000100 && \
+    LCD_MK85[0x5A] == 0b00010110 && \
+    LCD_MK85[0x5B] == 0b00000111 && \
+    LCD_MK85[0x5C] == 0b00010111 && \
+    LCD_MK85[0x5D] == 0b00000111 && \
+    LCD_MK85[0x5E] == 0b00010110 && \
+    LCD_MK85[0x5F] == 0b00000100) tone( 3, 3000, 200);
+
+}
+
 }
 
 }
@@ -44,24 +49,11 @@ print_screen = 1;
 //=================================================
 
 
-// sleep
-ISR(INT1_vect) {
-
-GICR  &= ~(1<<INT1); // INT1 disabled
-
-oled.command(0x08|0x04); // включить экран
-
-}
-
-
 void setup() {
 
-// sleep
-pinMode( 3, INPUT_PULLUP); // button ON to GND
-pinMode(19, INPUT_PULLUP); // button OFF to GND
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// графический режим:
+
+// графический режим OLED:
 oled.command(0x08); // выключить экран
 oled.command(0x1F); // переключиться в графический режим
 oled.command(0x01); // очистить ОЗУ
@@ -86,12 +78,6 @@ power_all_disable(); // turn off various modules
 
 //===================================================
 
-// sleep
-set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-sleep_enable();
-
-//===================================================
-
 /*
 LOW     когда на порту LOW
 CHANGE  при смене значения на порту
@@ -104,12 +90,7 @@ FALLING при смене значения на порту с HIGH на LOW
 MCUCR |= (1<<ISC01);            /*INT0 FALLING*/
 // MCUCR |= (1<<ISC00);            /*INT0 CHANGE*/
 GICR  |= (1<<INT0);             /*INT0 enabled*/
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// MCUCR |= (1<<ISC10)|(1<<ISC11); /*INT1 RISING*/
-// MCUCR |= (1<<ISC11);            /*INT1 FALLING*/
-// MCUCR |= (1<<ISC10);            /*INT1 CHANGE*/
-// GICR  |=  (1<<INT1);            /*INT1 enabled*/
-// GICR  &= ~(1<<INT1);            /*INT1 disabled*/
+// GICR  &= ~(1<<INT0);            /*INT0 disabled*/
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 for(byte i = 0; i < 105; i++) LCD_MK85[i] = 0;
@@ -350,7 +331,9 @@ if (n_segment == 6) {for (byte i = 0; i < 3; i++) digit[n_digit][i] |= 0b0000000
 bit++; if (bit == 5) {adr += 8; bit = 0;}
 
 }
+
 typewrite(digit[n_digit], 5,  n_digit * 5,  1);
+
 }
 
 }
@@ -413,27 +396,7 @@ result();
 }
 
 
-// sleep
-void sleep_screen() {
-
-if (digitalRead(19) == 0) {
-
-oled.command(0x08); // выключить экран
-
-GIFR   =  (1<<INTF1);
-GICR  |=  (1<<INT1); // INT1 enabled
-
-sleep_cpu(); // сон
-
-}
-
-}
-
-
 void loop() {while(1) {
-
-// sleep
-sleep_screen();
 
 print_MK85();
 
