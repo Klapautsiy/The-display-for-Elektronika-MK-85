@@ -25,9 +25,11 @@ ISR(INT0_vect) {
 address = (~PINB) - 0x80;
 data    = (~PINC) & 0x1F;
 
-if (address <= 0x68 /*0xE8 - 0x80*/) {
+if (address <= 0x68 /*0xE8 - 0x80*/ && LCD_MK85[address] != data) {
 
-if (LCD_MK85[address] != data) {LCD_MK85[address] = data; print_screen = 1; n_time  = 0;}
+LCD_MK85[address] = data;
+print_screen = 1;
+n_time  = 0;
 
 if (address == 0x5F) {
 
@@ -38,7 +40,7 @@ if (LCD_MK85[0x59] == 0b00000100 && \
     LCD_MK85[0x5C] == 0b00010111 && \
     LCD_MK85[0x5D] == 0b00000111 && \
     LCD_MK85[0x5E] == 0b00010110 && \
-    LCD_MK85[0x5F] == 0b00000100) tone( 3, 1000, 100);
+    LCD_MK85[0x5F] == 0b00000100) {bitWrite(PORTC, 5, !(bitRead(PORTC, 5))); tone( 3, 1000, 100);}
 
 }
 
@@ -50,6 +52,9 @@ if (LCD_MK85[0x59] == 0b00000100 && \
 
 
 void setup() {
+
+pinMode(19, OUTPUT);
+digitalWrite(19, 0);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -397,6 +402,8 @@ result();
 
 
 void loop() {while(1) {
+
+// digitalWrite(19, 1);
 
 print_MK85();
 
