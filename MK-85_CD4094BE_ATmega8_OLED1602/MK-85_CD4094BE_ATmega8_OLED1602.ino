@@ -20,6 +20,26 @@ volatile unsigned long n_time = 0;
 
 //=================================================
 
+// BELL - LETC "4DSTSD4"
+
+byte LETC[7] {
+0b00000100,
+0b00010110,
+0b00000111,
+0b00010111,
+0b00000111,
+0b00010110,
+0b00000100
+};
+
+
+boolean BELL() {
+for(byte i = 0; i < 7; i++) {
+if (LCD_MK85[0x59 + i] != LETC[i]) return 0;
+}
+                                   return 1;
+}
+
 ISR(INT0_vect) {
 
 address = (~PINB) - 0x80;
@@ -31,17 +51,9 @@ LCD_MK85[address] = data;
 print_screen = 1;
 n_time  = 0;
 
-if (address == 0x5F) {
-
-// BELL - LETC "4DSTSD4"
-if (LCD_MK85[0x59] == 0b00000100 && \
-    LCD_MK85[0x5A] == 0b00010110 && \
-    LCD_MK85[0x5B] == 0b00000111 && \
-    LCD_MK85[0x5C] == 0b00010111 && \
-    LCD_MK85[0x5D] == 0b00000111 && \
-    LCD_MK85[0x5E] == 0b00010110 && \
-    LCD_MK85[0x5F] == 0b00000100) {bitWrite(PORTC, 5, !(bitRead(PORTC, 5))); tone( 3, 1000, 100);}
-
+if (address == 0x5F && BELL() == 1) {
+bitWrite(PORTC, 5, !(bitRead(PORTC, 5)));
+tone( 3, 1000, 100);
 }
 
 }
@@ -315,7 +327,8 @@ byte digit[4][5];
 for (byte j = 0; j < 4; j++  ) {
 for (byte i = 0; i < 5; i++) {
 digit[j][i] = 0;
-}}
+}
+}
 
 byte adr = 0x30;
 byte bit =    0;
