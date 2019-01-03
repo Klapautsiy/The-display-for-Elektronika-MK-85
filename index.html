@@ -44,18 +44,25 @@
 Дисплей.
 ------------------------------------------------------
 
-<img src="pictures/MK-85_scheme_CD4094BE_ATmega8_OLED1602.png" width="800">
+<img src="pictures/MK-85_scheme_CD4094BE_ATmega8_OLED1602.png" width="906">
+
+
+схема подключения блока 2 к блоку 1, в зависимости от версии протокола последовательного интерфейса процессора Т36ВМ1-2:
+
+8-bit ADDRESS и 5-bit DATA (13 bit)                             8-bit ADDRESS и 8-bit DATA (16 bit)
+
+<img src="pictures/MK-85_scheme_CD4094BE_serial_8-5-bit.png" width="450"> <img src="pictures/MK-85_scheme_CD4094BE_serial_8-8-bit.png" width="450">
 
 
 Подключение к плате МК-85.
 ------------------------------------------------------
 
-<img src="pictures/MK85_PCB_C9.png" width="396" align="top"> <img src="pictures/MK85_PCB_SHIFT_SYNC_AD.png" width="396">
+<img src="pictures/MK85_PCB_C9.png" width="450"> <img src="pictures/MK85_PCB_SHIFT_SYNC_AD.png" width="450">
 
-питание                                                  шина передачи данных
-C9: pin -                                                D6: pin 1  AD
-C9: pin +                                                D6: pin 2  SYNC
-                                                         D6: pin 62 SHIFT
+питание                                                         шина передачи данных
+C9: pin -                                                       D6: pin 1  AD
+C9: pin +                                                       D6: pin 2  SYNC
+                                                                D6: pin 62 SHIFT
 
 
 Конфигурация фьюзов контроллера ATmega8.
@@ -98,9 +105,7 @@ M8_8.build.variant = pins_atmega8
 <body link="#44CC00" alink="#44CC00" vlink="#44CC00"><a href="https://github.com/Klapautsiy/The-display-for-Elektronika-MK-85/issues/new">вопросы можно задавать сюда</a></body>
 ------------------------------------------------------
 
-<iframe width="480" height="360" src="https://www.youtube.com/embed/qArIKbkMosQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-
-<iframe width="480" height="360" src="https://www.youtube.com/embed/NaTM2sQl0DA" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe width="480" height="360" src="https://www.youtube.com/embed/qArIKbkMosQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe> <iframe width="480" height="360" src="https://www.youtube.com/embed/NaTM2sQl0DA" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 </pre>
 
