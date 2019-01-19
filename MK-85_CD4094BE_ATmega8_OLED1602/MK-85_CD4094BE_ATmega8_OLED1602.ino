@@ -1,5 +1,7 @@
 
-/* information from http://www.pisi.com.pl/piotr433/mk85hwe.htm */
+/* information from
+http://www.pisi.com.pl/piotr433/mk85hwe.htm
+https://klapautsiy.github.io/The-display-for-Elektronika-MK-85/ */
 
 #include <avr/power.h>
 #include <LiquidCrystal.h>
@@ -7,16 +9,9 @@
    LiquidCrystal oled( 4,  5,  0,  1,  6,  7);
 
 
+volatile byte LCD_MK85[105];
 volatile byte address = 0;
 volatile byte data    = 0;
-
-volatile byte LCD_MK85[105];
-
-volatile boolean print_screen = 0;
-
-volatile unsigned long n_time = 0;
-         boolean  show_cursor = 0;
-
 
 //=================================================
 
@@ -40,6 +35,7 @@ if (LCD_MK85[0x59 + i] != LETC[i]) return 0;
                                    return 1;
 }
 
+
 ISR(INT0_vect) {
 
 address = (~PINB) - 0x80;
@@ -48,8 +44,6 @@ data    = (~PINC) & 0x1F;
 if (address <= 0x68 /*0xE8 - 0x80*/ && LCD_MK85[address] != data) {
 
 LCD_MK85[address] = data;
-print_screen = 1;
-n_time  = 0;
 
 if (address == 0x5F && BELL() == 1) {
 bitWrite(PORTC, 5, !(bitRead(PORTC, 5)));
@@ -84,6 +78,13 @@ setGraphicCursor(0, 0);
 for(byte i = 0; i < 80; i++) oled.write(0b11111111);
 setGraphicCursor(0, 1);
 for(byte i = 0; i < 80; i++) oled.write(0b11111111);
+
+// test BELL
+bitWrite(PORTC, 5, !(bitRead(PORTC, 5)));
+tone( 3, 1000, 100);
+
+// test LED
+digitalWrite(19, 1);
 */
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -346,6 +347,7 @@ if (n_segment == 5) {                             digit[n_digit][2] |= 0b0000011
 if (n_segment == 6) {for (byte i = 0; i < 3; i++) digit[n_digit][i] |= 0b00000001;}
 }
 
+
 bit++; if (bit == 5) {adr += 8; bit = 0;}
 
 }
@@ -358,12 +360,21 @@ typewrite(digit[n_digit], 5,  n_digit * 5,  1);
 
 }
 
-
+unsigned long n_time = 0;
+byte       n_cursor_ = 0;
 byte       n_cursor() {return (LCD_MK85[0x60] & 0x0F);}
 boolean form_cursor() {return (LCD_MK85[0x60] >> 4)  ;}
 
-
 void result() {
+
+n_time++;
+
+if (n_cursor_ != n_cursor()) {
+    n_cursor_  = n_cursor();
+n_time = 0;
+}
+
+boolean show_cursor = !((n_time >> 3) & 1);
 
 setGraphicCursor(20, 1);
 
@@ -371,7 +382,7 @@ for (byte i = 0; i < 60; i++) {
 
 byte column = 0;
 
-if (show_cursor   == 1 && n_cursor() == i / 5) {
+if (show_cursor == 1 && n_cursor() == i / 5) {
 if (form_cursor() == 1) column = 0b01000000;
 else                    column = 0b01111111;
 }
@@ -390,33 +401,16 @@ oled.write(column);
 
 void print_MK85() {
 
-if (n_cursor() < 12) {
-
-n_time++;
-
-boolean nshow_cursor = !((n_time >> 14) & 1);
-
-if (show_cursor != nshow_cursor) {
-    show_cursor  = nshow_cursor;
-print_screen = 1;
-}
-
-}
-
-//~~ экран ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if (print_screen == 1) {print_screen = 0;
-indicators();
-counter_WRT();
-result();
-}
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~ экран ~~~~~~~~~~~~~~~~~
+indicators();  //
+counter_WRT(); //
+result();      //
+//~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 }
 
 
 void loop() {while(1) {
-
-// digitalWrite(19, 1);
 
 print_MK85();
 
