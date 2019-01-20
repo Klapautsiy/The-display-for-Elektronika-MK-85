@@ -323,36 +323,36 @@ void counter_WRT() {
 
 if (_STOP_() == 0) {
 
-byte digit[4][5];
-
-for (byte j = 0; j < 4; j++  ) {
-for (byte i = 0; i < 5; i++) {
-digit[j][i] = 0;
-}
-}
-
 byte adr = 0x30;
 byte bit =    0;
 
 for (byte n_digit   = 0; n_digit   < 4; n_digit++  ) {
+
+byte digit[5] = {
+0b00000000,
+0b00000000,
+0b00000000,
+0b00000000,
+0b00000000
+};
+
 for (byte n_segment = 0; n_segment < 7; n_segment++) {
 
 if (bitRead(LCD_MK85[adr], bit) == 1) {
-if (n_segment == 0) {                             digit[n_digit][0] |= 0b00000111;}
-if (n_segment == 1) {for (byte i = 0; i < 3; i++) digit[n_digit][i] |= 0b00000100;}
-if (n_segment == 2) {                             digit[n_digit][0] |= 0b00011100;}
-if (n_segment == 3) {for (byte i = 0; i < 3; i++) digit[n_digit][i] |= 0b00010000;}
-if (n_segment == 4) {                             digit[n_digit][2] |= 0b00011100;}
-if (n_segment == 5) {                             digit[n_digit][2] |= 0b00000111;}
-if (n_segment == 6) {for (byte i = 0; i < 3; i++) digit[n_digit][i] |= 0b00000001;}
+if (n_segment == 0) {                             digit[0 + 1] |= 0b00001110;}
+if (n_segment == 1) {for (byte i = 0; i < 3; i++) digit[i + 1] |= 0b00001000;}
+if (n_segment == 2) {                             digit[0 + 1] |= 0b00111000;}
+if (n_segment == 3) {for (byte i = 0; i < 3; i++) digit[i + 1] |= 0b00100000;}
+if (n_segment == 4) {                             digit[2 + 1] |= 0b00111000;}
+if (n_segment == 5) {                             digit[2 + 1] |= 0b00001110;}
+if (n_segment == 6) {for (byte i = 0; i < 3; i++) digit[i + 1] |= 0b00000010;}
 }
-
 
 bit++; if (bit == 5) {adr += 8; bit = 0;}
 
 }
 
-typewrite(digit[n_digit], 5,  n_digit * 5,  1);
+typewrite(digit, 5,  n_digit * 5,  1);
 
 }
 
@@ -380,7 +380,7 @@ setGraphicCursor(20, 1);
 
 for (byte i = 0; i < 60; i++) {
 
-byte column = 0;
+byte column = 0b00000000;
 
 if (show_cursor == 1 && n_cursor() == i / 5) {
 if (form_cursor() == 1) column = 0b01000000;
