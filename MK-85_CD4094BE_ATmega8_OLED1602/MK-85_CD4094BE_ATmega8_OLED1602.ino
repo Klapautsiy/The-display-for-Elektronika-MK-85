@@ -1,7 +1,8 @@
 
-/* information from
+/*
 http://www.pisi.com.pl/piotr433/mk85hwe.htm
-https://klapautsiy.github.io/The-display-for-Elektronika-MK-85/ */
+https://klapautsiy.github.io/The-display-for-Elektronika-MK-85/
+*/
 
 #include <avr/power.h>
 #include <LiquidCrystal.h>
@@ -10,14 +11,15 @@ https://klapautsiy.github.io/The-display-for-Elektronika-MK-85/ */
 
 
 volatile byte LCD_MK85[105];
-volatile byte address = 0;
-volatile byte data    = 0;
 
 //=================================================
 
-// BELL - LETC "4DSTSD4"
+/*
+BELL - LETC "4DSTSD4"
+https://klapautsiy.github.io/The-display-for-Elektronika-MK-85/pictures/4DSTSD4.png
+*/
 
-byte LETC[7] {
+const byte LETC[7] {
 0b00000100,
 0b00010110,
 0b00000111,
@@ -38,8 +40,8 @@ if (LCD_MK85[0x59 + i] != LETC[i]) return 0;
 
 ISR(INT0_vect) {
 
-address = (~PINB) - 0x80;
-data    = (~PINC) & 0x1F;
+byte address = (~PINB) - 0x80;
+byte data    = (~PINC) & 0x1F;
 
 if (address <= 0x68 /*0xE8 - 0x80*/ && LCD_MK85[address] != data) {
 
@@ -121,7 +123,7 @@ while(LCD_MK85[0xE8 - 0x80] == 1);
 }
 
 
-byte font_A[5] = {
+const byte font_A[5] = {
 0b00011110,
 0b00000101,
 0b00000101,
@@ -129,7 +131,7 @@ byte font_A[5] = {
 0b00011110
 };
 
-byte font_D[5] = {
+const byte font_D[5] = {
 0b00011111,
 0b00010001,
 0b00010001,
@@ -137,7 +139,7 @@ byte font_D[5] = {
 0b00001110
 };
 
-byte font_E[5] = {
+const byte font_E[5] = {
 0b00011111,
 0b00010101,
 0b00010101,
@@ -145,7 +147,7 @@ byte font_E[5] = {
 0b00010001
 };
 
-byte font_F[5] = {
+const byte font_F[5] = {
 0b00011111,
 0b00000101,
 0b00000101,
@@ -153,7 +155,7 @@ byte font_F[5] = {
 0b00000001
 };
 
-byte font_G[5] = {
+const byte font_G[5] = {
 0b00001110,
 0b00010001,
 0b00010101,
@@ -161,7 +163,7 @@ byte font_G[5] = {
 0b00011101
 };
 
-byte font_M[5] = {
+const byte font_M[5] = {
 0b00011111,
 0b00000010,
 0b00000100,
@@ -169,7 +171,7 @@ byte font_M[5] = {
 0b00011111
 };
 
-byte font_N[5] = {
+const byte font_N[5] = {
 0b00011111,
 0b00000010,
 0b00000100,
@@ -177,7 +179,7 @@ byte font_N[5] = {
 0b00011111
 };
 
-byte font_R[5] = {
+const byte font_R[5] = {
 0b00011111,
 0b00000101,
 0b00000101,
@@ -185,7 +187,7 @@ byte font_R[5] = {
 0b00010010,
 };
 
-byte font_S[5] = {
+const byte font_S[5] = {
 0b00010010,
 0b00010101,
 0b00010101,
@@ -193,7 +195,7 @@ byte font_S[5] = {
 0b00001001
 };
 
-byte font_T[5] = {
+const byte font_T[5] = {
 0b00000001,
 0b00000001,
 0b00011111,
@@ -201,7 +203,7 @@ byte font_T[5] = {
 0b00000001
 };
 
-byte font_U[5] = {
+const byte font_U[5] = {
 0b00001111,
 0b00010000,
 0b00010000,
@@ -209,7 +211,7 @@ byte font_U[5] = {
 0b00001111
 };
 
-byte font_W[5] = {
+const byte font_W[5] = {
 0b00011111,
 0b00001000,
 0b00000100,
@@ -217,7 +219,7 @@ byte font_W[5] = {
 0b00011111
 };
 
-byte font_X[5] = {
+const byte font_X[5] = {
 0b00010001,
 0b00001010,
 0b00000100,
@@ -225,7 +227,7 @@ byte font_X[5] = {
 0b00010001
 };
 
-byte font_O[5] = {
+const byte font_O[5] = {
 0b00001110,
 0b00010001,
 0b00010001,
@@ -233,7 +235,7 @@ byte font_O[5] = {
 0b00001110
 };
 
-byte font_P[5] = {
+const byte font_P[5] = {
 0b00011111,
 0b00000101,
 0b00000101,
@@ -241,19 +243,7 @@ byte font_P[5] = {
 0b00000010
 };
 
-byte font_ [15] = {
-0b00000000,
-0b00000000,
-0b00000000,
-0b00000000,
-0b00000000,
-
-0b00000000,
-0b00000000,
-0b00000000,
-0b00000000,
-0b00000000,
-
+const byte font_ [5] = {
 0b00000000,
 0b00000000,
 0b00000000,
@@ -268,60 +258,74 @@ oled.command(LCD_SETCGRAMADDR | y);
 }
 
 
-void typewrite(byte array[], byte sizeof_array, byte x, byte y) {
-setGraphicCursor(x, y);
-for (byte i = 0; i < sizeof_array; i++) oled.write(array[i]);
+void typewrite(const byte array[5]) {
+for (byte i = 0; i < 5; i++) oled.write(array[i]);
 }
 
 
-boolean _EXT_ () {return bitRead(LCD_MK85[0x00], 0);}
-boolean _S_   () {return bitRead(LCD_MK85[0x00], 1);}
-boolean _F_   () {return bitRead(LCD_MK85[0x00], 2);}
-boolean _RUN_ () {return bitRead(LCD_MK85[0x08], 0);}
-boolean _WRT_ () {return bitRead(LCD_MK85[0x08], 1);}
-boolean _DEG_ () {return bitRead(LCD_MK85[0x08], 4);}
-boolean _RAD_ () {return bitRead(LCD_MK85[0x18], 0);}
-boolean _GRA_ () {return bitRead(LCD_MK85[0x20], 0);}
-boolean _TR_  () {return bitRead(LCD_MK85[0x28], 0);}
-boolean _STOP_() {return bitRead(LCD_MK85[0x58], 3);}
+void     EXT_ () {typewrite(font_E); typewrite(font_X); typewrite(font_T);                   }
+void     M_   () {typewrite(font_M);                                                         }
+void     S_   () {typewrite(font_S);                                                         }
+void     F_   () {typewrite(font_F);                                                         }
+void     RUN_ () {typewrite(font_R); typewrite(font_U); typewrite(font_N);                   }
+void     WRT_ () {typewrite(font_W); typewrite(font_R); typewrite(font_T);                   }
+void     DEG_ () {typewrite(font_D); typewrite(font_E); typewrite(font_G);                   }
+void     RAD_ () {typewrite(font_R); typewrite(font_A); typewrite(font_D);                   }
+void     GRA_ () {typewrite(font_G); typewrite(font_R); typewrite(font_A);                   }
+void     TR_  () {typewrite(font_T); typewrite(font_R);                                      }
+void     STOP_() {typewrite(font_S); typewrite(font_T); typewrite(font_O); typewrite(font_P);}
+
+void     _    () {typewrite(font_ );                                                         }
+void     __   () {typewrite(font_ ); typewrite(font_ );                                      }
+void     ___  () {typewrite(font_ ); typewrite(font_ ); typewrite(font_ );                   }
 
 
 void indicators() {
 
-if (_EXT_ () == 0                                  ) {typewrite(font_ ,15,  0, 0);                                                                                       }
-else                                                 {typewrite(font_E, 5,  0, 0); typewrite(font_X, 5,  5, 0); typewrite(font_T, 5, 10, 0);                             }
+boolean _EXT  = bitRead(LCD_MK85[0x00], 0);
+boolean _S    = bitRead(LCD_MK85[0x00], 1);
+boolean _F    = bitRead(LCD_MK85[0x00], 2);
+boolean _RUN  = bitRead(LCD_MK85[0x08], 0);
+boolean _WRT  = bitRead(LCD_MK85[0x08], 1);
+boolean _DEG  = bitRead(LCD_MK85[0x08], 4);
+boolean _RAD  = bitRead(LCD_MK85[0x18], 0);
+boolean _GRA  = bitRead(LCD_MK85[0x20], 0);
+boolean _TR   = bitRead(LCD_MK85[0x28], 0);
+boolean _STOP = bitRead(LCD_MK85[0x58], 3);
 
-if (_S_   () == 0 && _F_   () == 0                 ) {typewrite(font_ , 5, 20, 0);                                                                                       }
-else                                                 {
-if (_S_   () == 1 && _F_   () == 1                 ) {typewrite(font_M, 5, 20, 0);                                                                                       }
-if (_S_   () == 1 && _F_   () == 0                 ) {typewrite(font_S, 5, 20, 0);                                                                                       }
-if (_S_   () == 0 && _F_   () == 1                 ) {typewrite(font_F, 5, 20, 0);                                                                                       }
+if (_EXT  == 0                          ) {setGraphicCursor( 0, 0); ___  ();}
+else                                      {setGraphicCursor( 0, 0); EXT_ ();}
+
+if (_S    == 0 && _F   == 0             ) {setGraphicCursor(20, 0); _    ();}
+else                                      {
+if (_S    == 1 && _F   == 1             ) {setGraphicCursor(20, 0); M_   ();}
+if (_S    == 1 && _F   == 0             ) {setGraphicCursor(20, 0); S_   ();}
+if (_S    == 0 && _F   == 1             ) {setGraphicCursor(20, 0); F_   ();}
 }
 
-if (_RUN_ () == 0 && _WRT_ () == 0                 ) {typewrite(font_ ,15, 30, 0);                                                                                       }
-else                                                 {
-if (_RUN_ () == 1                                  ) {typewrite(font_R, 5, 30, 0); typewrite(font_U, 5, 35, 0); typewrite(font_N, 5, 40, 0);                             }
-if (_WRT_ () == 1                                  ) {typewrite(font_W, 5, 30, 0); typewrite(font_R, 5, 35, 0); typewrite(font_T, 5, 40, 0);                             }
+if (_RUN  == 0 && _WRT == 0             ) {setGraphicCursor(30, 0); ___  ();}
+else                                      {
+if (_RUN  == 1                          ) {setGraphicCursor(30, 0); RUN_ ();}
+if (              _WRT == 1             ) {setGraphicCursor(30, 0); WRT_ ();}
 }
 
-if (_DEG_ () == 0 && _RAD_ () == 0 && _GRA_ () == 0) {typewrite(font_ ,15, 50, 0);                                                                                       }
-else                                                 {
-if (_DEG_ () == 1                                  ) {typewrite(font_D, 5, 50, 0); typewrite(font_E, 5, 55, 0); typewrite(font_G, 5, 60, 0);                             }
-if (_RAD_ () == 1                                  ) {typewrite(font_R, 5, 50, 0); typewrite(font_A, 5, 55, 0); typewrite(font_D, 5, 60, 0);                             }
-if (_GRA_ () == 1                                  ) {typewrite(font_G, 5, 50, 0); typewrite(font_R, 5, 55, 0); typewrite(font_A, 5, 60, 0);                             }
+if (_DEG  == 0 && _RAD == 0 && _GRA == 0) {setGraphicCursor(50, 0); ___  ();}
+else                                      {
+if (_DEG  == 1                          ) {setGraphicCursor(50, 0); DEG_ ();}
+if (              _RAD == 1             ) {setGraphicCursor(50, 0); RAD_ ();}
+if (                           _GRA == 1) {setGraphicCursor(50, 0); GRA_ ();}
 }
 
-if (_TR_  () == 0                                  ) {typewrite(font_ ,10, 70, 0);                                                                                       }
-else                                                 {typewrite(font_T, 5, 70, 0); typewrite(font_R, 5, 75, 0);                                                          }
+if (_TR   == 0                          ) {setGraphicCursor(70, 0); __   ();}
+else                                      {setGraphicCursor(70, 0); TR_  ();}
 
-if (_STOP_() == 1                                  ) {typewrite(font_S, 5,  0, 1); typewrite(font_T, 5,  5, 1); typewrite(font_O, 5, 10, 1); typewrite(font_P, 5, 15, 1);}
+if (_STOP == 1                          ) {setGraphicCursor( 0, 1); STOP_();}
+else                                      {counter_WRT();                   }
 
 }
 
 
 void counter_WRT() {
-
-if (_STOP_() == 0) {
 
 byte adr = 0x30;
 byte bit =    0;
@@ -352,25 +356,24 @@ bit++; if (bit == 5) {adr += 8; bit = 0;}
 
 }
 
-typewrite(digit, 5,  n_digit * 5,  1);
+setGraphicCursor(n_digit * 5,  1);
+typewrite(digit);
 
 }
 
 }
 
-}
-
-unsigned long n_time = 0;
-byte       n_cursor_ = 0;
-byte       n_cursor() {return (LCD_MK85[0x60] & 0x0F);}
-boolean form_cursor() {return (LCD_MK85[0x60] >> 4)  ;}
 
 void result() {
 
+static unsigned long n_time = 0;
+static byte       n_cursor_ = 0;
+       byte       n_cursor  = LCD_MK85[0x60] & 0x0F;
+
 n_time++;
 
-if (n_cursor_ != n_cursor()) {
-    n_cursor_  = n_cursor();
+if (n_cursor_ != n_cursor) {
+    n_cursor_  = n_cursor;
 n_time = 0;
 }
 
@@ -382,9 +385,13 @@ for (byte i = 0; i < 60; i++) {
 
 byte column = 0b00000000;
 
-if (show_cursor == 1 && n_cursor() == i / 5) {
-if (form_cursor() == 1) column = 0b01000000;
-else                    column = 0b01111111;
+if (show_cursor == 1 && n_cursor_ == i / 5) {
+
+boolean form_cursor = (LCD_MK85[0x60] >> 4);
+
+if (form_cursor == 1) column = 0b01000000;
+else                  column = 0b01111111;
+
 }
 else {
 for (byte j = 1; j < 8; j++) {
@@ -401,11 +408,9 @@ oled.write(column);
 
 void print_MK85() {
 
-//~~ экран ~~~~~~~~~~~~~~~~~
-indicators();  //
-counter_WRT(); //
-result();      //
-//~~~~~~~~~~~~~~~~~~~~~~~~~~
+indicators();
+
+result();
 
 }
 
